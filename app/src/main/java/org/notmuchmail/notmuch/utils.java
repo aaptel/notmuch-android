@@ -27,11 +27,11 @@ public class utils {
         }
 
         public void stop() {
-            end = System.nanoTime();
+            end = System.currentTimeMillis();
         }
 
         public String format() {
-            return String.format("%s took %f ms", title, (end - start) / 1000000.0);
+            return String.format("%s took %f ms", title, (end - start));
         }
 
         public String stopFormat() {
