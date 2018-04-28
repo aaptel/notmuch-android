@@ -1,5 +1,11 @@
 package org.notmuchmail.notmuch;
 
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.KeyPair;
+
+import java.io.ByteArrayOutputStream;
+
 public class utils {
     public static class TimeIt {
         long start, end;
@@ -46,4 +52,19 @@ public class utils {
         return out.toString();
     }
 
+    public static class SSHKeyPair {
+        public String priv, pub;
+
+        public SSHKeyPair(String passphrase) throws JSchException {
+            JSch jsch = new JSch();
+            KeyPair keyPair = KeyPair.genKeyPair(jsch, KeyPair.RSA);
+            ByteArrayOutputStream privateKeyBuff = new ByteArrayOutputStream(2048);
+            ByteArrayOutputStream publicKeyBuff = new ByteArrayOutputStream(2048);
+
+            keyPair.writePublicKey(publicKeyBuff, "notmuch");
+            keyPair.writePrivateKey(privateKeyBuff);
+            priv = privateKeyBuff.toString();
+            pub = publicKeyBuff.toString();
+        }
+    }
 }
