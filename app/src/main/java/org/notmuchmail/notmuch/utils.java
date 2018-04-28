@@ -41,12 +41,14 @@ public class utils {
     }
 
     public static String shellquote(String s) {
-        return "'" + s.replace("'", "'\"'\"'") + "-";
+        return "'" + s.replace("'", "'\"'\"'") + "'";
     }
 
-    public static String makeCmd(String... args) {
+    public static String makeCmd(String cmd, String... args) {
         StringBuilder out = new StringBuilder();
+        out.append(shellquote(cmd));
         for (int i = 0; i < args.length; i++) {
+            out.append(" ");
             out.append(shellquote(args[i]));
         }
         return out.toString();
