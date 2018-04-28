@@ -9,6 +9,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -16,6 +17,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.support.v7.app.ActionBar;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
@@ -77,9 +79,22 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     }
                 }
 
+            } else if ((preference instanceof EditTextPreference)) {
+                int pwType = InputType.TYPE_NUMBER_VARIATION_PASSWORD
+                        | InputType.TYPE_TEXT_VARIATION_PASSWORD
+                        | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD;
+                int intType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
+                int prefType = ((EditTextPreference) preference).getEditText().getInputType();
+                if ((prefType & pwType) != 0) {
+                    if (stringValue.isEmpty()) {
+                        preference.setSummary(R.string.pref_ssh_empty_password);
+                    } else {
+                        preference.setSummary("******************");
+                    }
+                } else {
+                    preference.setSummary(stringValue);
+                }
             } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
                 preference.setSummary(stringValue);
             }
             return true;
@@ -156,29 +171,32 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      */
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
-                || GeneralPreferenceFragment.class.getName().equals(fragmentName)
+                || SSHPreferenceFragment.class.getName().equals(fragmentName)
                 || DataSyncPreferenceFragment.class.getName().equals(fragmentName)
                 || NotificationPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     /**
-     * This fragment shows general preferences only. It is used when the
+     * This fragment shows SSH preferences only. It is used when the
      * activity is showing a two-pane settings UI.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class GeneralPreferenceFragment extends PreferenceFragment {
+    public static class SSHPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
+            addPreferencesFromResource(R.xml.pref_ssh);
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
+
+            bindPreferenceSummaryToValue(findPreference("ssh_host"));
+            bindPreferenceSummaryToValue(findPreference("ssh_port"));
+            bindPreferenceSummaryToValue(findPreference("ssh_username"));
+            bindPreferenceSummaryToValue(findPreference("ssh_password"));
         }
 
         @Override
@@ -191,6 +209,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return super.onOptionsItemSelected(item);
         }
     }
+
 
     /**
      * This fragment shows notification preferences only. It is used when the

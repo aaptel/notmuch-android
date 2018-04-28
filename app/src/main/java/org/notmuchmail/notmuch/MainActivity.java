@@ -6,14 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.notmuchmail.notmuch.ssh.CommandResult;
 import org.notmuchmail.notmuch.ssh.SSHConf;
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     TextView cmd_output;
     Button send_btn;
     Button connect_btn;
+    Button settings_btn;
     BroadcastReceiver recv;
     SSHService ssh;
     boolean bounded = false;
@@ -62,12 +66,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         cmd_output = findViewById(R.id.cmd_output);
         send_btn = findViewById(R.id.send_btn);
         connect_btn = findViewById(R.id.connect_btn);
+        settings_btn = findViewById(R.id.settings_btn);
         cmd_output.setText("");
 
         recv = new BroadcastReceiver() {
@@ -99,12 +104,20 @@ public class MainActivity extends AppCompatActivity {
         connect_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SSHConf conf = new SSHConf();
-                conf.host = "192.168.2.111";
-                conf.user = "aaptel";
-                conf.pw = "xxxxxxxxx";
-                conf.port = 22;
-                ssh.setSSHConf(conf);
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                SSHConf conf = new SSHConf(prefs);
+                if (conf.isComplete()) {
+                    ssh.setSSHConf(conf);
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.ssh_conf_incomplete, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+        settings_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
             }
         });
         LocalBroadcastManager.getInstance(this).registerReceiver(recv, new IntentFilter("msg"));

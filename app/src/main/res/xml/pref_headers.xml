@@ -3,9 +3,9 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="org.notmuchmail.notmuch.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="org.notmuchmail.notmuch.SettingsActivity$SSHPreferenceFragment"
         android:icon="@drawable/ic_info_black_24dp"
-        android:title="@string/pref_header_general" />
+        android:title="@string/pref_header_ssh" />
 
     <header
         android:fragment="org.notmuchmail.notmuch.SettingsActivity$NotificationPreferenceFragment"

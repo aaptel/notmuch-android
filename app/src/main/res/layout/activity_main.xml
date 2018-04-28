@@ -11,6 +11,14 @@
         android:orientation="vertical">
 
         <Button
+            android:id="@+id/settings_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Settings"
+            tools:layout_editor_absoluteX="148dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+        <Button
             android:id="@+id/connect_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
