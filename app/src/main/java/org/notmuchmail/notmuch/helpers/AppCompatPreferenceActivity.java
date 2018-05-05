@@ -1,4 +1,4 @@
-package org.notmuchmail.notmuch;
+package org.notmuchmail.notmuch.helpers;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

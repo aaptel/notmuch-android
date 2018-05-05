@@ -24,4 +24,18 @@ public class SearchResult {
         this.query = query;
         this.tags = tags;
     }
+
+    public boolean isRead() {
+        return !tags.contains("unread");
+    }
+
+    public boolean isImportant() {
+        return tags.contains("imp");
+    }
+
+    public long getId() {
+        return thread.hashCode();
+    }
+
+
 }

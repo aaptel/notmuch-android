@@ -1,4 +1,4 @@
-package org.notmuchmail.notmuch;
+package org.notmuchmail.notmuch.ssh;
 
 import android.app.Service;
 import android.content.Context;
@@ -14,10 +14,6 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-
-import org.notmuchmail.notmuch.ssh.CommandResult;
-import org.notmuchmail.notmuch.ssh.SSHConf;
-import org.notmuchmail.notmuch.ssh.SSHException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -143,7 +139,7 @@ public class SSHService extends Service {
     }
 
     public class SSHBinder extends Binder {
-        SSHService getService() {
+        public SSHService getService() {
             return SSHService.this;
         }
     }

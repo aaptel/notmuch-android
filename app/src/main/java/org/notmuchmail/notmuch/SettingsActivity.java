@@ -21,6 +21,8 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
+import org.notmuchmail.notmuch.helpers.AppCompatPreferenceActivity;
+
 import java.util.List;
 
 /**

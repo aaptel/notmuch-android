@@ -1,4 +1,4 @@
-package org.notmuchmail.notmuch;
+package org.notmuchmail.notmuch.helpers;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;

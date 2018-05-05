@@ -18,8 +18,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.notmuchmail.notmuch.helpers.utils;
 import org.notmuchmail.notmuch.ssh.CommandResult;
 import org.notmuchmail.notmuch.ssh.SSHConf;
+import org.notmuchmail.notmuch.ssh.SSHService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     Button send_btn;
     Button connect_btn;
     Button settings_btn;
+    Button search_btn;
     BroadcastReceiver recv;
     SSHService ssh;
     boolean bounded = false;
@@ -73,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         send_btn = findViewById(R.id.send_btn);
         connect_btn = findViewById(R.id.connect_btn);
         settings_btn = findViewById(R.id.settings_btn);
+        search_btn = findViewById(R.id.search_btn);
         cmd_output.setText("");
 
         recv = new BroadcastReceiver() {
@@ -98,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
         send_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ssh.addCommand("echo $(hostname) $(date); sleep 10");
+                ssh.addCommand("echo $(hostname) $(date)");
+                ssh.addCommand(utils.makeCmd("echo", "$(foo)", "f '''b \"foo"));
             }
         });
         connect_btn.setOnClickListener(new View.OnClickListener() {
@@ -117,6 +122,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
+        search_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SearchActivity.class);
                 startActivity(intent);
             }
         });
