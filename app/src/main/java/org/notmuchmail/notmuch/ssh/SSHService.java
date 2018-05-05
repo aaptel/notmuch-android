@@ -49,7 +49,7 @@ public class SSHService extends Service {
     boolean forceReco;
     LinkedList<Job> managedJobs;
     int recoAttempt;
-    private long idCounter;
+    private int idCounter;
     ReaderThread readerThread;
 
     public SSHService() {
@@ -109,10 +109,14 @@ public class SSHService extends Service {
         readerThread.start();
     }
 
-    public long addCommand(String cmd) {
+    public int addCommand(String cmd) {
         jobsLock.lock();
-        long id;
+        int id;
         try {
+            if (idCounter == Integer.MAX_VALUE) {
+                idCounter = 0;
+                Log.e(TAG, "cmd id overflow, wrapping cmd id to 0");
+            }
             id = idCounter++;
             Log.i(TAG, "add command id=<" + id + ">, cmd=<" + cmd + ">, waiting for lock");
             managedJobs.add(new Job(id, cmd));
@@ -159,7 +163,7 @@ public class SSHService extends Service {
         static final int HANDLE = 3; // fully read from, waiting to be passed to the handler
         static final int DONE = 4; // hander called, waiting to be removed
         int state;
-        long id;
+        int id;
         ChannelExec chan;
         String cmd;
         CommandResult result;
@@ -169,7 +173,7 @@ public class SSHService extends Service {
         Exception error;
         long startTime, lastReadTime;
 
-        Job(long id, String cmd) {
+        Job(int id, String cmd) {
             this.id = id;
             this.cmd = cmd;
             state = NEW;

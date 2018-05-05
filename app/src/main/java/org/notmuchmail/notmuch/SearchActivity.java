@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -12,14 +13,18 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import org.notmuchmail.notmuch.helpers.SSHActivityHelper;
 import org.notmuchmail.notmuch.messages.Search;
 import org.notmuchmail.notmuch.messages.SearchResult;
+import org.notmuchmail.notmuch.ssh.CommandCallback;
+import org.notmuchmail.notmuch.ssh.CommandResult;
 import org.notmuchmail.notmuch.ssh.SSHException;
 
 import java.util.ArrayList;
@@ -32,6 +37,20 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
     private SwipeRefreshLayout swipeRefreshLayout;
     private ActionModeCallback actionModeCallback;
     private ActionMode actionMode;
+    private SSHActivityHelper sshHelper;
+    private Search currentSearch = new Search("tag:inbox", Search.ResultOrder.NEWEST_FIRST);
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        sshHelper.onStart();
+    }
+
+    @Override
+    protected void onDestroy() {
+        sshHelper.onDestroy();
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +58,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("fooooo");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -68,29 +88,51 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                 new Runnable() {
                     @Override
                     public void run() {
-                        getInbox();
+                        doNewSearch(currentSearch.getInputQuery());
                     }
                 }
         );
+
+        sshHelper = new SSHActivityHelper(this);
+        sshHelper.onCreate();
     }
 
-    private void getInbox() {
+    @Override
+    protected void onStop() {
+        sshHelper.onStop();
+        super.onStop();
+    }
+
+    private void doNewSearch(String query) {
         swipeRefreshLayout.setRefreshing(true);
 
         messages.clear();
 
         // add all the messages
-        Search s = new Search("", Search.ResultOrder.NEWEST_FIRST);
-        try {
-            s.parseSample();
-            messages.addAll(s.getResults());
-            mAdapter.notifyDataSetChanged();
-            swipeRefreshLayout.setRefreshing(false);
+        currentSearch = new Search(query, Search.ResultOrder.NEWEST_FIRST);
 
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Error while getting results", Toast.LENGTH_LONG).show();
-            swipeRefreshLayout.setRefreshing(false);
-        }
+        sshHelper.addCommand(currentSearch.runMore(sshHelper.getSsh()), new CommandCallback() {
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(SearchActivity.this.getApplicationContext(), "Error: " + e.toString(), Toast.LENGTH_LONG);
+                mAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void onResult(CommandResult r) {
+                try {
+
+                    currentSearch.parse(r);
+                    messages.addAll(currentSearch.getResults());
+                } catch (SSHException e) {
+                    Toast.makeText(SearchActivity.this.getApplicationContext(), "Error: " + e.toString(), Toast.LENGTH_LONG);
+                } finally {
+                    mAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            }
+        });
     }
 
     /**
@@ -113,6 +155,19 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
         return true;
     }
 
@@ -135,7 +190,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
     @Override
     public void onRefresh() {
         // swipe refresh is performed, fetch the messages again
-        getInbox();
+        doNewSearch(currentSearch.getInputQuery());
     }
 
     @Override

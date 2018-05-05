@@ -2,10 +2,10 @@ package org.notmuchmail.notmuch.messages;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.notmuchmail.notmuch.ssh.SSHService;
+import org.notmuchmail.notmuch.helpers.utils;
 import org.notmuchmail.notmuch.ssh.CommandResult;
 import org.notmuchmail.notmuch.ssh.SSHException;
-import org.notmuchmail.notmuch.helpers.utils;
+import org.notmuchmail.notmuch.ssh.SSHService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +40,8 @@ public class Search {
         offset = 0;
     }
 
-    public long runMore(SSHService ssh) {
-        long id = ssh.addCommand(utils.makeCmd(
+    public int runMore(SSHService ssh) {
+        int id = ssh.addCommand(utils.makeCmd(
                 "notmuch",
                 "search",
                 "--format=json", "--format-version=2",
@@ -95,6 +95,10 @@ public class Search {
             throw new SSHException("error while parsing search query json output", e);
         }
         return added;
+    }
+
+    public String getInputQuery() {
+        return inputQuery;
     }
 
     public int parseSample() throws SSHException {
