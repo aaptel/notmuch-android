@@ -82,6 +82,7 @@ public class SSHActivityHelper {
                 if (e != null) {
                     Log.e(TAG, "cmd error output <" + e.getMessage() + ">", e);
                     cb.onError(e);
+                    removeCommand(cmdid);
                     return;
                 }
 
@@ -89,6 +90,7 @@ public class SSHActivityHelper {
                 if (res != null) {
                     Log.i(TAG, "cmd command output <" + res.stdout + ">");
                     cb.onResult(res);
+                    removeCommand(cmdid);
                     return;
                 }
                 Log.wtf(TAG, "unreachable code");
@@ -118,6 +120,10 @@ public class SSHActivityHelper {
 
     public void addCommand(int id, CommandCallback cb) {
         commandCallbacks.append(id, cb);
+    }
+
+    private void removeCommand(int id) {
+        commandCallbacks.delete(id);
     }
 
     public SSHService getSsh() {

@@ -15,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-
 import org.notmuchmail.notmuch.helpers.FlipAnimator;
 import org.notmuchmail.notmuch.messages.SearchResult;
 
@@ -90,7 +89,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
         // displaying text view data
         holder.from.setText(message.authors);
         holder.subject.setText(message.subject);
-        holder.message.setText("msg summ...");
+        holder.message.setText(String.join(" ", message.tags));
         holder.timestamp.setText(message.dateRelative);
 
         // displaying the first letter of From in icon text

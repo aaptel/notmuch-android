@@ -58,7 +58,6 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("fooooo");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -104,6 +103,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
     }
 
     private void doNewSearch(String query) {
+        getSupportActionBar().setTitle(query);
         swipeRefreshLayout.setRefreshing(true);
 
         messages.clear();
@@ -160,7 +160,8 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false;
+                doNewSearch(query);
+                return true;
             }
 
             @Override
