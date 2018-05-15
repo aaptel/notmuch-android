@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import org.notmuchmail.notmuch.helpers.SSHActivityHelper;
 import org.notmuchmail.notmuch.messages.Search;
-import org.notmuchmail.notmuch.messages.SearchResult;
+import org.notmuchmail.notmuch.messages.SearchMessage;
 import org.notmuchmail.notmuch.ssh.CommandCallback;
 import org.notmuchmail.notmuch.ssh.CommandResult;
 import org.notmuchmail.notmuch.ssh.SSHException;
@@ -30,10 +30,10 @@ import org.notmuchmail.notmuch.ssh.SSHException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, MessagesAdapter.MessageAdapterListener {
-    private List<SearchResult> messages = new ArrayList<>();
+public class SearchActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, SearchMessagesAdapter.MessageAdapterListener {
+    private List<SearchMessage> messages = new ArrayList<>();
     private RecyclerView recyclerView;
-    private MessagesAdapter mAdapter;
+    private SearchMessagesAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ActionModeCallback actionModeCallback;
     private ActionMode actionMode;
@@ -73,7 +73,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        mAdapter = new MessagesAdapter(this, messages, this);
+        mAdapter = new SearchMessagesAdapter(this, messages, this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -207,7 +207,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
     public void onIconImportantClicked(int position) {
         // Star icon is clicked,
         // mark the message as important
-        SearchResult message = messages.get(position);
+        SearchMessage message = messages.get(position);
         //message.setImportant(!message.isImportant());
         messages.set(position, message);
         mAdapter.notifyDataSetChanged();
@@ -221,7 +221,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
             enableActionMode(position);
         } else {
             // read the message which removes bold from the row
-            SearchResult message = messages.get(position);
+            SearchMessage message = messages.get(position);
             //message.setRead(true);
             messages.set(position, message);
             mAdapter.notifyDataSetChanged();

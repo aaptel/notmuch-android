@@ -16,14 +16,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.notmuchmail.notmuch.helpers.FlipAnimator;
-import org.notmuchmail.notmuch.messages.SearchResult;
+import org.notmuchmail.notmuch.messages.SearchMessage;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyViewHolder> {
+public class SearchMessagesAdapter extends RecyclerView.Adapter<SearchMessagesAdapter.MyViewHolder> {
     private Context mContext;
-    private List<SearchResult> messages;
+    private List<SearchMessage> messages;
     private MessageAdapterListener listener;
     private SparseBooleanArray selectedItems;
 
@@ -66,7 +66,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
     }
 
 
-    public MessagesAdapter(Context mContext, List<SearchResult> messages, MessageAdapterListener listener) {
+    public SearchMessagesAdapter(Context mContext, List<SearchMessage> messages, MessageAdapterListener listener) {
         this.mContext = mContext;
         this.messages = messages;
         this.listener = listener;
@@ -77,14 +77,14 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.message_list_row, parent, false);
+                .inflate(R.layout.search_message, parent, false);
 
         return new MyViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
-        SearchResult message = messages.get(position);
+        SearchMessage message = messages.get(position);
 
         // displaying text view data
         holder.from.setText(message.authors);
@@ -146,7 +146,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
         });
     }
 
-    private void applyProfilePicture(MyViewHolder holder, SearchResult message) {
+    private void applyProfilePicture(MyViewHolder holder, SearchMessage message) {
             holder.imgProfile.setImageResource(R.drawable.bg_circle);
             holder.imgProfile.setColorFilter(Color.parseColor("#4262ce"));
             holder.iconText.setVisibility(View.VISIBLE);
@@ -193,7 +193,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
         return messages.get(position).getId();
     }
 
-    private void applyImportant(MyViewHolder holder, SearchResult message) {
+    private void applyImportant(MyViewHolder holder, SearchMessage message) {
         if (message.isImportant()) {
             holder.iconImp.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_star_black_24dp));
             holder.iconImp.setColorFilter(ContextCompat.getColor(mContext, R.color.icon_tint_selected));
@@ -203,7 +203,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
         }
     }
 
-    private void applyReadStatus(MyViewHolder holder, SearchResult message) {
+    private void applyReadStatus(MyViewHolder holder, SearchMessage message) {
         if (message.isRead()) {
             holder.from.setTypeface(null, Typeface.NORMAL);
             holder.subject.setTypeface(null, Typeface.NORMAL);

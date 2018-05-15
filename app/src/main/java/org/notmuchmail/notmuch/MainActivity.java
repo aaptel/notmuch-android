@@ -1,16 +1,9 @@
 package org.notmuchmail.notmuch;
 
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -18,10 +11,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.notmuchmail.notmuch.helpers.utils;
+import org.notmuchmail.notmuch.helpers.SSHActivityHelper;
+import org.notmuchmail.notmuch.messages.Show;
+import org.notmuchmail.notmuch.messages.ThreadMessage;
+import org.notmuchmail.notmuch.ssh.CommandCallback;
 import org.notmuchmail.notmuch.ssh.CommandResult;
 import org.notmuchmail.notmuch.ssh.SSHConf;
-import org.notmuchmail.notmuch.ssh.SSHService;
+import org.notmuchmail.notmuch.ssh.SSHException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,34 +33,18 @@ public class MainActivity extends AppCompatActivity {
     Button connect_btn;
     Button settings_btn;
     Button search_btn;
-    BroadcastReceiver recv;
-    SSHService ssh;
-    boolean bounded = false;
-
-    ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            ssh = ((SSHService.SSHBinder) service).getService();
-            bounded = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            ssh = null;
-            bounded = false;
-        }
-    };
+    SSHActivityHelper sshHelper;
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.i(TAG, "activ onstart");
-        Intent intent = new Intent(this, SSHService.class);
-        bindService(intent, connection, BIND_AUTO_CREATE);
+        sshHelper.onStart();
     }
 
     @Override
     protected void onStop() {
+        sshHelper.onStop();
         super.onStop();
     }
 
@@ -72,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         cmd_output = findViewById(R.id.cmd_output);
         send_btn = findViewById(R.id.send_btn);
         connect_btn = findViewById(R.id.connect_btn);
@@ -79,31 +60,31 @@ public class MainActivity extends AppCompatActivity {
         search_btn = findViewById(R.id.search_btn);
         cmd_output.setText("");
 
-        recv = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Bundle b = intent.getExtras();
-                Log.i(TAG, "recv broadcast intent " + b.toString());
-
-
-                Exception e = (Exception) intent.getSerializableExtra("error");
-                if (e != null) {
-                    Log.i(TAG, "add error output <" + e.getMessage() + ">");
-                    cmd_output.setText(cmd_output.getText() + "error:" + e.getMessage() + "\n");
-                }
-
-                CommandResult res = (CommandResult) intent.getSerializableExtra("result");
-                if (res != null) {
-                    Log.i(TAG, "add command output <" + res.stdout + ">");
-                    cmd_output.setText(cmd_output.getText() + res.stdout);
-                }
-            }
-        };
         send_btn.setOnClickListener(new View.OnClickListener() {
+            Show show = new Show("thread:000000000000c6f3");
+
             @Override
             public void onClick(View v) {
-                ssh.addCommand("echo $(hostname) $(date)");
-                ssh.addCommand(utils.makeCmd("echo", "$(foo)", "f '''b \"foo"));
+
+                sshHelper.addCommand(show.run(sshHelper.getSsh()), new CommandCallback() {
+                            @Override
+                            public void onError(Exception e) {
+                                Log.e(TAG, "error", e);
+                            }
+
+                            @Override
+                            public void onResult(CommandResult r) {
+                                try {
+                                    show.parse(r);
+                                    for (ThreadMessage m : show.getResults()) {
+                                        cmd_output.append(m.toString());
+                                    }
+                                } catch (SSHException e) {
+                                    Log.e(TAG, "error", e);
+                                }
+                            }
+                        }
+                );
             }
         });
         connect_btn.setOnClickListener(new View.OnClickListener() {
@@ -112,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                 SSHConf conf = new SSHConf(prefs);
                 if (conf.isComplete()) {
-                    ssh.setSSHConf(conf);
+                    sshHelper.getSsh().setSSHConf(conf);
                 } else {
                     Toast.makeText(getApplicationContext(), R.string.ssh_conf_incomplete, Toast.LENGTH_LONG).show();
                 }
@@ -132,12 +113,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        LocalBroadcastManager.getInstance(this).registerReceiver(recv, new IntentFilter("msg"));
+        sshHelper = new SSHActivityHelper(this);
+        sshHelper.onCreate();
     }
 
     @Override
     protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(recv);
+        sshHelper.onDestroy();
         super.onDestroy();
     }
 

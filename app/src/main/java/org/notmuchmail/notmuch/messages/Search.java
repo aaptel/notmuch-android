@@ -27,7 +27,7 @@ public class Search {
     String inputQuery;
     ResultOrder order;
     int offset;
-    List<SearchResult> results;
+    List<SearchMessage> results;
 
     public Search(String query, ResultOrder orderType) {
         this.inputQuery = query;
@@ -88,7 +88,7 @@ public class Search {
                         tags.add(s);
                     }
                 }
-                results.add(new SearchResult(tid, timestamp, daterelative, matched, total, authors, subject, queries, tags));
+                results.add(new SearchMessage(tid, timestamp, daterelative, matched, total, authors, subject, queries, tags));
                 added++;
             }
         } catch (Exception e) {
@@ -106,7 +106,7 @@ public class Search {
         return parse(r);
     }
 
-    public List<SearchResult> getResults() {
+    public List<SearchMessage> getResults() {
         return results;
     }
 
