@@ -56,13 +56,7 @@ public class SSHActivityHelper {
         commandCallbacks = new SparseArray<>();
     }
 
-    public void onStart() {
-    }
-
-    public void onStop() {
-    }
-
-    public void bind() {
+    private void bind() {
         if (!bounded) {
             if (boundingStarted) {
                 Log.w(TAG, "bounding already started");
@@ -77,15 +71,14 @@ public class SSHActivityHelper {
         }
     }
 
-    public void unbind() {
+    private void unbind() {
         if (bounded) {
             Log.i(TAG, "unbinding");
             activity.unbindService(connection);
         }
     }
 
-    public void onCreate() {
-        bind();
+    private void registerBroadcast() {
         recv = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -125,16 +118,16 @@ public class SSHActivityHelper {
         LocalBroadcastManager.getInstance(activity).registerReceiver(recv, new IntentFilter("msg"));
     }
 
+    private void unregisterBroadcast() {
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(recv);
+    }
+
     public SSHService getSsh() {
         if (ssh == null) {
             Log.wtf(TAG, "ssh null, boundingStarted=" + boundingStarted + " bounded=" + bounded);
             onStart();
         }
         return ssh;
-    }
-
-    public void onDestroy() {
-        LocalBroadcastManager.getInstance(activity).unregisterReceiver(recv);
     }
 
     public void connect() {
@@ -158,6 +151,22 @@ public class SSHActivityHelper {
 
     private void removeCommand(int id) {
         commandCallbacks.delete(id);
+    }
+
+    public void onStart() {
+    }
+
+    public void onStop() {
+    }
+
+    public void onCreate() {
+        bind();
+        registerBroadcast();
+    }
+
+    public void onDestroy() {
+        unbind();
+        unregisterBroadcast();
     }
 
     public interface OnConnectedCallback {

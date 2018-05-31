@@ -225,7 +225,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
             SearchMessage message = messages.get(position);
             //message.setRead(true);
             Intent intent = new Intent(this, ThreadActivity.class);
-            intent.putExtra("query", message.thread);
+            intent.putExtra("query", "thread:" + message.thread);
             startActivity(intent);
             //messages.set(position, message);
             //mAdapter.notifyDataSetChanged();
