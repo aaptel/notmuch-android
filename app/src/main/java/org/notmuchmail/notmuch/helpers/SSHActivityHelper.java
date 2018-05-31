@@ -25,41 +25,67 @@ import org.notmuchmail.notmuch.ssh.SSHService;
 public class SSHActivityHelper {
     private static final String TAG = "nmsshhelper";
     BroadcastReceiver recv;
-    SSHService ssh;
+    SSHService ssh = null;
     boolean bounded = false;
+    boolean boundingStarted = false;
     Activity activity;
     SparseArray<CommandCallback> commandCallbacks;
-
+    OnConnectedCallback cb;
     ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             ssh = ((SSHService.SSHBinder) service).getService();
             bounded = true;
+            Log.i(TAG, "service connected (ssh=" + ssh.toString() + ")");
+            if (cb != null)
+                cb.onConnected();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG, "service disconnected");
             ssh = null;
             bounded = false;
+            boundingStarted = false;
         }
     };
 
-    public SSHActivityHelper(Activity activ) {
+    public SSHActivityHelper(Activity activ, OnConnectedCallback cb) {
         activity = activ;
+        this.cb = cb;
         commandCallbacks = new SparseArray<>();
     }
 
     public void onStart() {
-        Intent intent = new Intent(activity, SSHService.class);
-        activity.bindService(intent, connection, activity.BIND_AUTO_CREATE);
     }
 
     public void onStop() {
-        if (bounded)
+    }
+
+    public void bind() {
+        if (!bounded) {
+            if (boundingStarted) {
+                Log.w(TAG, "bounding already started");
+                return;
+            }
+            Log.i(TAG, "bind service");
+            Intent intent = new Intent(activity, SSHService.class);
+            boolean r = activity.bindService(intent, connection, activity.BIND_AUTO_CREATE);
+            if (r == false)
+                Log.wtf(TAG, "bindservice returned false");
+            boundingStarted = true;
+        }
+    }
+
+    public void unbind() {
+        if (bounded) {
+            Log.i(TAG, "unbinding");
             activity.unbindService(connection);
+        }
     }
 
     public void onCreate() {
+        bind();
         recv = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -99,6 +125,14 @@ public class SSHActivityHelper {
         LocalBroadcastManager.getInstance(activity).registerReceiver(recv, new IntentFilter("msg"));
     }
 
+    public SSHService getSsh() {
+        if (ssh == null) {
+            Log.wtf(TAG, "ssh null, boundingStarted=" + boundingStarted + " bounded=" + bounded);
+            onStart();
+        }
+        return ssh;
+    }
+
     public void onDestroy() {
         LocalBroadcastManager.getInstance(activity).unregisterReceiver(recv);
     }
@@ -126,7 +160,7 @@ public class SSHActivityHelper {
         commandCallbacks.delete(id);
     }
 
-    public SSHService getSsh() {
-        return ssh;
+    public interface OnConnectedCallback {
+        void onConnected();
     }
 }

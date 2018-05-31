@@ -1,5 +1,6 @@
 package org.notmuchmail.notmuch;
 
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -69,7 +70,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         });
 
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_thread);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
@@ -92,7 +93,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                 }
         );
 
-        sshHelper = new SSHActivityHelper(this);
+        sshHelper = new SSHActivityHelper(this, null);
         sshHelper.onCreate();
     }
 
@@ -223,10 +224,12 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
             // read the message which removes bold from the row
             SearchMessage message = messages.get(position);
             //message.setRead(true);
-            messages.set(position, message);
-            mAdapter.notifyDataSetChanged();
-
-            Toast.makeText(getApplicationContext(), "Read: " + message.subject, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, ThreadActivity.class);
+            intent.putExtra("query", message.thread);
+            startActivity(intent);
+            //messages.set(position, message);
+            //mAdapter.notifyDataSetChanged();
+            //Toast.makeText(getApplicationContext(), "Read: " + message.subject, Toast.LENGTH_SHORT).show();
         }
     }
 

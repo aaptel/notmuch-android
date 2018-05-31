@@ -5,8 +5,23 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
 
 public class utils {
+    public static String join(String delim, Iterable<? extends CharSequence> array) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<? extends CharSequence> it = array.iterator();
+        if (!it.hasNext()) {
+            return "";
+        }
+        sb.append(it.next());
+        while (it.hasNext()) {
+            sb.append(delim);
+            sb.append(it.next());
+        }
+        return sb.toString();
+    }
+
     public static class TimeIt {
         long start, end;
         String title;

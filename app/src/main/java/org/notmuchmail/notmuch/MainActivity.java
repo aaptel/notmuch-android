@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        sshHelper = new SSHActivityHelper(this);
+        sshHelper = new SSHActivityHelper(this, null);
         sshHelper.onCreate();
     }
 
