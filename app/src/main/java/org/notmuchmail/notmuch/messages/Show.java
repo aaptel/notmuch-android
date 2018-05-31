@@ -37,7 +37,8 @@ public class Show {
         return id;
     }
 
-    private void parseThreadNode(JSONArray node) throws JSONException {
+    // reused in ComposeActivity to parse original message
+    public static void parseThreadNode(JSONArray node, List<ThreadMessage> results) throws JSONException {
         JSONObject o = node.getJSONObject(0);
         {
             ThreadMessage m = new ThreadMessage();
@@ -71,7 +72,7 @@ public class Show {
 
         JSONArray children = node.getJSONArray(1);
         for (int i = 0; i < children.length(); i++) {
-            parseThreadNode(children.getJSONArray(i));
+            parseThreadNode(children.getJSONArray(i), results);
         }
     }
 
@@ -93,7 +94,7 @@ public class Show {
             for (int i = 0; i < jset.length(); i++) {
                 JSONArray jthread = jset.getJSONArray(i);
                 for (int j = 0; j < jthread.length(); j++) {
-                    parseThreadNode(jthread.getJSONArray(j));
+                    parseThreadNode(jthread.getJSONArray(j), results);
                 }
             }
         } catch (Exception e) {

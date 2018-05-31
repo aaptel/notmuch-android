@@ -35,7 +35,8 @@
         <activity
             android:name=".ThreadActivity"
             android:label="@string/title_activity_thread"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ComposeActivity"></activity>
     </application>
 
 </manifest>

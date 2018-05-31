@@ -8,4 +8,5 @@
     <dimen name="icon_star">25dp</dimen>
     <dimen name="icon_text">22dp</dimen>
     <dimen name="timestamp">12dp</dimen>
+    <dimen name="compose_header_width">50dp</dimen>
 </resources>

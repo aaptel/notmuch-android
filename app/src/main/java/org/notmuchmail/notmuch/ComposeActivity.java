@@ -4,33 +4,30 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.CheckedTextView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.notmuchmail.notmuch.helpers.SSHActivityHelper;
-import org.notmuchmail.notmuch.messages.Show;
-import org.notmuchmail.notmuch.messages.ThreadMessage;
+import org.notmuchmail.notmuch.messages.Reply;
+import org.notmuchmail.notmuch.messages.ReplyMessage;
 import org.notmuchmail.notmuch.ssh.CommandCallback;
 import org.notmuchmail.notmuch.ssh.CommandResult;
 
-import java.util.ArrayList;
-import java.util.List;
+public class ComposeActivity extends AppCompatActivity {
+    private static final String TAG = "nmcmp";
 
-public class ThreadActivity extends AppCompatActivity {
-    private static final String TAG = "nmth";
-    RecyclerView rv;
-    List<ThreadMessage> messages;
     SSHActivityHelper sshHelper;
-    Show show;
     String query;
+    Reply reply;
+    ReplyMessage result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_thread);
+        setContentView(R.layout.activity_compose);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -43,44 +40,46 @@ public class ThreadActivity extends AppCompatActivity {
             }
         });
 
-        messages = new ArrayList<>();
-        rv = (RecyclerView) findViewById(R.id.recycler_view_thread);
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        rv.setAdapter(new ThreadMessagesAdapter(this, messages));
-
 
         if (savedInstanceState != null) {
-            query = savedInstanceState.getString("query");
+            query = savedInstanceState.getString("origin");
         } else {
-            query = getIntent().getExtras().getString("query");
+            query = getIntent().getExtras().getString("origin");
         }
-        show = new Show(query);
+        reply = new Reply(query);
 
         sshHelper = new SSHActivityHelper(this, new SSHActivityHelper.OnConnectedCallback() {
             @Override
             public void onConnected() {
-                sshHelper.addCommand(show.run(sshHelper.getSsh()), new CommandCallback() {
+                sshHelper.addCommand(reply.run(sshHelper.getSsh()), new CommandCallback() {
                     @Override
                     public void onError(Exception e) {
-                        Toast.makeText(ThreadActivity.this.getApplicationContext(), "Failed to run " + query + " (" + e.toString() + ")", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ComposeActivity.this.getApplicationContext(), "Failed to run " + query + " (" + e.toString() + ")", Toast.LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onResult(CommandResult r) {
                         try {
-                            show.parse(r);
-                            messages.addAll(show.getResults());
-                            rv.getAdapter().notifyDataSetChanged();
+                            reply.parse(r);
+                            setReply(reply.getResult());
                         } catch (Exception e) {
-                            Toast.makeText(ThreadActivity.this.getApplicationContext(), "Error while parsing notmuch output for " + query + " (" + e.toString() + ")", Toast.LENGTH_LONG).show();
+                            Toast.makeText(ComposeActivity.this.getApplicationContext(), "Error while parsing notmuch output for " + query + " (" + e.toString() + ")", Toast.LENGTH_LONG).show();
                         }
                     }
                 });
             }
         });
         sshHelper.onCreate();
+    }
 
-        // TODO add option to reply in every message and run the compose activity
+    public void setReply(ReplyMessage rm) {
+        this.result = rm;
+        getSupportActionBar().setTitle(result.subject);
+        ((TextView) findViewById(R.id.from)).setText(result.from);
+        ((TextView) findViewById(R.id.to)).setText(result.to);
+        ((TextView) findViewById(R.id.cc)).setText(result.cc);
+        ((TextView) findViewById(R.id.bcc)).setText(result.bcc);
+        ((CheckedTextView) findViewById(R.id.message)).setText(result.original.quotedText());
     }
 
     @Override
