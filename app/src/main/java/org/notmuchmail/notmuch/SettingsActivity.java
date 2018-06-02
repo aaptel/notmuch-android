@@ -3,7 +3,10 @@ package org.notmuchmail.notmuch;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -16,12 +19,22 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.notmuchmail.notmuch.helpers.AppCompatPreferenceActivity;
+import org.notmuchmail.notmuch.ssh.CommandResult;
+import org.notmuchmail.notmuch.ssh.SSHConf;
+import org.notmuchmail.notmuch.ssh.SSHConnectionTest;
 
 import java.util.List;
 
@@ -184,6 +197,75 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class SSHPreferenceFragment extends PreferenceFragment {
+        Context ctx;
+        TextView testRes;
+        Button btn;
+        int defaultCol;
+
+        void startTest() {
+            testRes.setText("");
+            btn.setEnabled(false);
+            btn.setText(R.string.pref_testing);
+        }
+
+        void endTest(Object r) {
+            btn.setEnabled(true);
+            btn.setText(R.string.pref_test_connection);
+            if (r instanceof Exception) {
+                testRes.setTextColor(Color.RED);
+                testRes.setText("ERR: " + ((Exception) r).toString());
+            } else {
+                testRes.setTextColor(Color.GREEN);
+                testRes.setText("OK: " + ((String) r));
+            }
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            LinearLayout v = (LinearLayout) super.onCreateView(inflater, container, savedInstanceState);
+            ctx = getActivity().getApplicationContext();
+            testRes = new TextView(getActivity().getApplicationContext());
+            testRes.setTypeface(null, Typeface.BOLD);
+            v.addView(testRes);
+            btn = new Button(ctx);
+            btn.setText(R.string.pref_test_connection);
+            v.addView(btn);
+            defaultCol = testRes.getCurrentTextColor();
+            btn.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+                    SSHConf conf = new SSHConf(prefs);
+                    btn.setEnabled(false);
+                    btn.setText(R.string.pref_testing);
+                    SSHConnectionTest.test(conf, ctx, new SSHConnectionTest.onTestDoneListener() {
+                        @Override
+                        public void onSuccess(final CommandResult s) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    endTest(s.stdout);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError(final Exception e) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    endTest(e);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            return v;
+
+        }
+
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);

@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        // TODO make a first_run prefs, show welcome layout if not set, otherwise, load conf and jump to SeachActivity
+        // TODO add a settings action in the toolbar
         cmd_output = findViewById(R.id.cmd_output);
         send_btn = findViewById(R.id.send_btn);
         connect_btn = findViewById(R.id.connect_btn);
