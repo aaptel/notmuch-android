@@ -1,14 +1,12 @@
 package org.notmuchmail.notmuch;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.widget.CheckedTextView;
-import android.widget.TextView;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import org.notmuchmail.notmuch.helpers.SSHActivityHelper;
@@ -38,12 +36,12 @@ public class ComposeActivity extends AppCompatActivity {
                 try {
                     replyCmd.parse(r);
                     ReplyMessage rm = replyCmd.getResult();
-                    getSupportActionBar().setTitle(rm.subject);
-                    ((TextView) findViewById(R.id.from)).setText(rm.from);
-                    ((TextView) findViewById(R.id.to)).setText(rm.to);
-                    ((TextView) findViewById(R.id.cc)).setText(rm.cc);
-                    ((TextView) findViewById(R.id.bcc)).setText(rm.bcc);
-                    ((CheckedTextView) findViewById(R.id.message)).setText(rm.original.quotedText());
+                    ((EditText) findViewById(R.id.subject)).setText(rm.subject);
+                    ((EditText) findViewById(R.id.from)).setText(rm.from);
+                    ((EditText) findViewById(R.id.to)).setText(rm.to);
+                    ((EditText) findViewById(R.id.cc)).setText(rm.cc);
+                    ((EditText) findViewById(R.id.bcc)).setText(rm.bcc);
+                    ((EditText) findViewById(R.id.message)).setText(rm.original.quotedText());
                 } catch (Exception e) {
                     Log.e(TAG, "error while parsing notmuch output", e);
                     Toast.makeText(ComposeActivity.this.getApplicationContext(), "Error while parsing notmuch output for " + query + " (" + e.toString() + ")", Toast.LENGTH_LONG).show();
@@ -62,21 +60,16 @@ public class ComposeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_compose);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        setTitle("New Message");
 
         if (savedInstanceState != null) {
             paramBundle = savedInstanceState;
         } else {
             paramBundle = getIntent().getExtras();
-        }
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            if (paramBundle == null) {
+                paramBundle = new Bundle();
             }
-        });
+        }
 
         sshHelper = new SSHActivityHelper(this, new SSHActivityHelper.OnConnectedCallback() {
             @Override
@@ -92,6 +85,27 @@ public class ComposeActivity extends AppCompatActivity {
         sshHelper.onCreate();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_compose, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_send:
+                // TODO: implement send
+                Toast.makeText(this, "TODO: implement send :)", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.action_attach:
+                // TODO: implement attach
+                Toast.makeText(this, "TODO: implement attach :)", Toast.LENGTH_LONG).show();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     protected void onStart() {

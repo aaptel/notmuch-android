@@ -13,11 +13,31 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="@dimen/compose_header_width"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:lines="1"
+                android:text="Subject:"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Subject..."
+                android:text="" />
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/icon"
             android:orientation="horizontal">
 
             <TextView
@@ -32,10 +52,8 @@
                 android:id="@+id/from"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:editable="true"
-                android:ellipsize="none"
-                android:lines="1"
-                android:text="aaptel@suse.com" />
+                android:hint="From..."
+                android:text="" />
         </LinearLayout>
 
         <LinearLayout
@@ -55,10 +73,10 @@
                 android:id="@+id/to"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:editable="true"
                 android:ellipsize="end"
                 android:lines="1"
-                android:text="aaptel@suse.com" />
+                android:hint="To..."
+                android:text="" />
         </LinearLayout>
 
         <LinearLayout
@@ -78,10 +96,10 @@
                 android:id="@+id/cc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:editable="true"
                 android:ellipsize="end"
                 android:lines="1"
-                android:text="aaptel@suse.com" />
+                android:hint="CC..."
+                android:text="" />
         </LinearLayout>
 
         <LinearLayout
@@ -99,12 +117,12 @@
 
             <EditText
                 android:id="@+id/bcc"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:editable="true"
                 android:ellipsize="end"
                 android:lines="1"
-                android:text="aaptel@suse.com" />
+                android:hint="BCC..."
+                android:text="" />
         </LinearLayout>
 
         <EditText
@@ -114,7 +132,7 @@
             android:layout_marginTop="10dp"
             android:gravity="top|left"
             android:inputType="textMultiLine"
-            android:text="My super message" />
+            android:hint="Type your message here" />
 
     </LinearLayout>
 

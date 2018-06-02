@@ -42,4 +42,13 @@
         android:singleLine="true"
         android:title="@string/pref_title_ssh_password" />
 
+    <EditTextPreference
+        android:capitalize="none"
+        android:defaultValue="msmtp"
+        android:key="ssh_sendmail_cmd"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_ssh_sendmail_cmd" />
+
 </PreferenceScreen>

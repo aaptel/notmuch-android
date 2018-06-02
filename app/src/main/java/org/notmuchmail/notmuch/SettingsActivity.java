@@ -199,6 +199,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("ssh_port"));
             bindPreferenceSummaryToValue(findPreference("ssh_username"));
             bindPreferenceSummaryToValue(findPreference("ssh_password"));
+            bindPreferenceSummaryToValue(findPreference("ssh_sendmail_cmd"));
         }
 
         @Override
