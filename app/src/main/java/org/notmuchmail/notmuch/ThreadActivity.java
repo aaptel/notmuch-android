@@ -85,7 +85,7 @@ public class ThreadActivity extends AppCompatActivity {
         });
         sshHelper.onCreate();
 
-        // TODO add option to replyCmd in every message and run the compose activity
+        // TODO add option to reply-sender in every message and run the compose activity
     }
 
     @Override

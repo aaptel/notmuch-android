@@ -38,6 +38,9 @@ import org.notmuchmail.notmuch.ssh.SSHConnectionTest;
 
 import java.util.List;
 
+// TODO add email client settings
+// TODO add "mark as read" (tagging)
+
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
  * handset devices, settings are presented as a single list. On tablets,
