@@ -10,7 +10,7 @@ import org.notmuchmail.notmuch.ssh.SSHService;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Search {
+public class SearchCmd {
     public static final int SEARCH_LIMIT = 10;
 
     public enum ResultOrder {
@@ -29,7 +29,7 @@ public class Search {
     int offset;
     List<SearchMessage> results;
 
-    public Search(String query, ResultOrder orderType) {
+    public SearchCmd(String query, ResultOrder orderType) {
         this.inputQuery = query;
         order = orderType;
         offset = 0;

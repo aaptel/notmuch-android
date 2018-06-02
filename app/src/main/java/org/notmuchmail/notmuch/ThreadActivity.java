@@ -1,8 +1,8 @@
 package org.notmuchmail.notmuch;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.notmuchmail.notmuch.helpers.SSHActivityHelper;
-import org.notmuchmail.notmuch.messages.Show;
+import org.notmuchmail.notmuch.messages.ShowCmd;
 import org.notmuchmail.notmuch.messages.ThreadMessage;
 import org.notmuchmail.notmuch.ssh.CommandCallback;
 import org.notmuchmail.notmuch.ssh.CommandResult;
@@ -23,8 +23,9 @@ public class ThreadActivity extends AppCompatActivity {
     private static final String TAG = "nmth";
     RecyclerView rv;
     List<ThreadMessage> messages;
+    FloatingActionButton replybtn;
     SSHActivityHelper sshHelper;
-    Show show;
+    ShowCmd showCmd;
     String query;
 
     @Override
@@ -34,32 +35,36 @@ public class ThreadActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         messages = new ArrayList<>();
         rv = (RecyclerView) findViewById(R.id.recycler_view_thread);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(new ThreadMessagesAdapter(this, messages));
 
-
-        if (savedInstanceState != null) {
-            query = savedInstanceState.getString("query");
-        } else {
-            query = getIntent().getExtras().getString("query");
+        Bundle bundle = savedInstanceState;
+        if (bundle == null) {
+            bundle = getIntent().getExtras();
         }
-        show = new Show(query);
+
+
+        query = bundle.getString("query");
+        showCmd = new ShowCmd(query);
+
+        replybtn = (FloatingActionButton) findViewById(R.id.fab);
+        replybtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ThreadActivity.this, ComposeActivity.class);
+                intent.putExtra("query", query);
+                intent.putExtra("replyall", true);
+                startActivity(intent);
+            }
+        });
 
         sshHelper = new SSHActivityHelper(this, new SSHActivityHelper.OnConnectedCallback() {
             @Override
             public void onConnected() {
-                sshHelper.addCommand(show.run(sshHelper.getSsh()), new CommandCallback() {
+                sshHelper.addCommand(showCmd.run(sshHelper.getSsh()), new CommandCallback() {
                     @Override
                     public void onError(Exception e) {
                         Toast.makeText(ThreadActivity.this.getApplicationContext(), "Failed to run " + query + " (" + e.toString() + ")", Toast.LENGTH_LONG).show();
@@ -68,8 +73,8 @@ public class ThreadActivity extends AppCompatActivity {
                     @Override
                     public void onResult(CommandResult r) {
                         try {
-                            show.parse(r);
-                            messages.addAll(show.getResults());
+                            showCmd.parse(r);
+                            messages.addAll(showCmd.getResults());
                             rv.getAdapter().notifyDataSetChanged();
                         } catch (Exception e) {
                             Toast.makeText(ThreadActivity.this.getApplicationContext(), "Error while parsing notmuch output for " + query + " (" + e.toString() + ")", Toast.LENGTH_LONG).show();
@@ -80,7 +85,7 @@ public class ThreadActivity extends AppCompatActivity {
         });
         sshHelper.onCreate();
 
-        // TODO add option to reply in every message and run the compose activity
+        // TODO add option to replyCmd in every message and run the compose activity
     }
 
     @Override

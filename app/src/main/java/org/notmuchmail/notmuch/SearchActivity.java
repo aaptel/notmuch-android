@@ -22,7 +22,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.notmuchmail.notmuch.helpers.SSHActivityHelper;
-import org.notmuchmail.notmuch.messages.Search;
+import org.notmuchmail.notmuch.messages.SearchCmd;
 import org.notmuchmail.notmuch.messages.SearchMessage;
 import org.notmuchmail.notmuch.ssh.CommandCallback;
 import org.notmuchmail.notmuch.ssh.CommandResult;
@@ -39,7 +39,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
     private ActionModeCallback actionModeCallback;
     private ActionMode actionMode;
     private SSHActivityHelper sshHelper;
-    private Search currentSearch = new Search("tag:inbox", Search.ResultOrder.NEWEST_FIRST);
+    private SearchCmd currentSearchCmd = new SearchCmd("tag:inbox", SearchCmd.ResultOrder.NEWEST_FIRST);
 
     @Override
     protected void onStart() {
@@ -83,12 +83,12 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
 
         actionModeCallback = new ActionModeCallback();
 
-        // show loader and fetch messages
+        // showCmd loader and fetch messages
         swipeRefreshLayout.post(
                 new Runnable() {
                     @Override
                     public void run() {
-                        doNewSearch(currentSearch.getInputQuery());
+                        doNewSearch(currentSearchCmd.getInputQuery());
                     }
                 }
         );
@@ -110,9 +110,9 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         messages.clear();
 
         // add all the messages
-        currentSearch = new Search(query, Search.ResultOrder.NEWEST_FIRST);
+        currentSearchCmd = new SearchCmd(query, SearchCmd.ResultOrder.NEWEST_FIRST);
 
-        sshHelper.addCommand(currentSearch.runMore(sshHelper.getSsh()), new CommandCallback() {
+        sshHelper.addCommand(currentSearchCmd.runMore(sshHelper.getSsh()), new CommandCallback() {
             @Override
             public void onError(Exception e) {
                 Toast.makeText(SearchActivity.this.getApplicationContext(), "Error: " + e.toString(), Toast.LENGTH_LONG);
@@ -124,8 +124,8 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
             public void onResult(CommandResult r) {
                 try {
 
-                    currentSearch.parse(r);
-                    messages.addAll(currentSearch.getResults());
+                    currentSearchCmd.parse(r);
+                    messages.addAll(currentSearchCmd.getResults());
                 } catch (SSHException e) {
                     Toast.makeText(SearchActivity.this.getApplicationContext(), "Error: " + e.toString(), Toast.LENGTH_LONG);
                 } finally {
@@ -182,7 +182,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_search) {
-            Toast.makeText(getApplicationContext(), "Search...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "SearchCmd...", Toast.LENGTH_SHORT).show();
             return true;
         }
 
@@ -192,7 +192,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
     @Override
     public void onRefresh() {
         // swipe refresh is performed, fetch the messages again
-        doNewSearch(currentSearch.getInputQuery());
+        doNewSearch(currentSearchCmd.getInputQuery());
     }
 
     @Override
@@ -229,7 +229,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
             startActivity(intent);
             //messages.set(position, message);
             //mAdapter.notifyDataSetChanged();
-            //Toast.makeText(getApplicationContext(), "Read: " + message.subject, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Read: " + message.subject, Toast.LENGTH_SHORT).showCmd();
         }
     }
 

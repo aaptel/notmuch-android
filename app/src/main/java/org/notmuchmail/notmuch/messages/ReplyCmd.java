@@ -1,5 +1,6 @@
 package org.notmuchmail.notmuch.messages;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.notmuchmail.notmuch.helpers.utils;
@@ -9,13 +10,14 @@ import org.notmuchmail.notmuch.ssh.SSHService;
 
 import java.util.ArrayList;
 
-public class Reply {
+public class ReplyCmd {
+    boolean replyAll;
     String inputQuery;
     ReplyMessage result;
 
-    // TODO add option for reply type (all vs sender)
-    public Reply(String q) {
-        inputQuery = q;
+    public ReplyCmd(String query, boolean replyAll) {
+        this.inputQuery = query;
+        this.replyAll = replyAll;
     }
 
     static private boolean isText(JSONObject part) throws JSONException {
@@ -52,13 +54,18 @@ public class Reply {
             result.subject = jhdrs.getString("Subject");
             result.from = jhdrs.getString("From");
             result.to = jhdrs.getString("To");
-            result.cc = jhdrs.getString("Cc");
-            result.bcc = ""; // TODO: lookup notmuch specs for complete possible fields
+            try {
+                result.cc = jhdrs.getString("Cc");
+            } catch (Exception e) {
+            }
+            result.bcc = null;
             result.inreplyto = jhdrs.getString("In-reply-to");
             result.references = jhdrs.getString("References");
 
             ArrayList<ThreadMessage> tmp = new ArrayList<>();
-            Show.parseThreadNode(jroot.getJSONArray("original"), tmp);
+            JSONArray jnode = new JSONArray();
+            jnode.put(jroot.getJSONObject("original"));
+            ShowCmd.parseThreadNode(jnode, tmp);
             result.original = tmp.get(0);
 
         } catch (Exception e) {

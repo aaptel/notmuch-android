@@ -57,7 +57,7 @@ public class ThreadMessagesAdapter extends RecyclerView.Adapter<ThreadMessagesAd
 //                    new AlertDialog.Builder(itemView.getContext())
 //                            .setTitle(currentPair.first)
 //                            .setMessage(currentPair.second)
-//                            .show();
+//                            .showCmd();
 //                }
 //            });
         }

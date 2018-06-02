@@ -56,6 +56,8 @@ public class utils {
     }
 
     public static String shellquote(String s) {
+        if (s == null)
+            return "";
         return "'" + s.replace("'", "'\"'\"'") + "'";
     }
 

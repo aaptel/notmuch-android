@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.notmuchmail.notmuch.helpers.SSHActivityHelper;
-import org.notmuchmail.notmuch.messages.Show;
+import org.notmuchmail.notmuch.messages.ShowCmd;
 import org.notmuchmail.notmuch.messages.ThreadMessage;
 import org.notmuchmail.notmuch.ssh.CommandCallback;
 import org.notmuchmail.notmuch.ssh.CommandResult;
@@ -61,12 +61,12 @@ public class MainActivity extends AppCompatActivity {
         cmd_output.setText("");
 
         send_btn.setOnClickListener(new View.OnClickListener() {
-            Show show = new Show("thread:000000000000c6f3");
+            ShowCmd showCmd = new ShowCmd("thread:000000000000c6f3");
 
             @Override
             public void onClick(View v) {
 
-                sshHelper.addCommand(show.run(sshHelper.getSsh()), new CommandCallback() {
+                sshHelper.addCommand(showCmd.run(sshHelper.getSsh()), new CommandCallback() {
                             @Override
                             public void onError(Exception e) {
                                 Log.e(TAG, "error", e);
@@ -75,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onResult(CommandResult r) {
                                 try {
-                                    show.parse(r);
-                                    for (ThreadMessage m : show.getResults()) {
+                                    showCmd.parse(r);
+                                    for (ThreadMessage m : showCmd.getResults()) {
                                         cmd_output.append(m.toString());
                                     }
                                 } catch (SSHException e) {

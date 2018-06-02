@@ -3,7 +3,7 @@ package org.notmuchmail.notmuch.messages;
 import java.io.Serializable;
 
 // TODO: move all pure data classes in a model package
-// TODO: rename Reply/Show/Search to ReplyCommand/ShowCommand/SearchCommand
+// TODO: rename ReplyCmd/ShowCmd/SearchCmd to ReplyCommand/ShowCommand/SearchCommand
 
 public class ReplyMessage implements Serializable {
     public String inputQuery;

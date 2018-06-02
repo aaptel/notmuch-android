@@ -11,11 +11,11 @@ import org.notmuchmail.notmuch.ssh.SSHService;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Show {
+public class ShowCmd {
     String inputQuery;
     List<ThreadMessage> results;
 
-    public Show(String q) {
+    public ShowCmd(String q) {
         inputQuery = q;
     }
 
@@ -70,9 +70,11 @@ public class Show {
             results.add(m);
         }
 
-        JSONArray children = node.getJSONArray(1);
-        for (int i = 0; i < children.length(); i++) {
-            parseThreadNode(children.getJSONArray(i), results);
+        if (node.length() >= 2) {
+            JSONArray children = node.getJSONArray(1);
+            for (int i = 0; i < children.length(); i++) {
+                parseThreadNode(children.getJSONArray(i), results);
+            }
         }
     }
 
