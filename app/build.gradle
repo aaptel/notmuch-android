@@ -9,11 +9,11 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                cppFlags ""
-            }
-        }
+        //externalNativeBuild {
+        //    cmake {
+        //        cppFlags ""
+        //    }
+        //}
     }
     buildTypes {
         release {
@@ -21,11 +21,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-        }
-    }
+    //externalNativeBuild {
+    //    cmake {
+    //        path "CMakeLists.txt"
+    //    }
+    //}
     packagingOptions {
         exclude 'META-INF/mimetypes.default'
     }
