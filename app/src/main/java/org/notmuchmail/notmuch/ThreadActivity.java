@@ -55,7 +55,8 @@ public class ThreadActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ThreadActivity.this, ComposeActivity.class);
-                intent.putExtra("query", query);
+                // TODO always reply to last messages now, add button per email
+                intent.putExtra("query", "id:" + messages.get(messages.size() - 1).id);
                 intent.putExtra("replyall", true);
                 startActivity(intent);
             }
