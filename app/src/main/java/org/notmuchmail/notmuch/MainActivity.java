@@ -8,37 +8,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import org.notmuchmail.notmuch.helpers.SSHActivityHelper;
-import org.notmuchmail.notmuch.messages.ShowCmd;
-import org.notmuchmail.notmuch.messages.ThreadMessage;
-import org.notmuchmail.notmuch.ssh.CommandCallback;
-import org.notmuchmail.notmuch.ssh.CommandResult;
 import org.notmuchmail.notmuch.ssh.SSHConf;
-import org.notmuchmail.notmuch.ssh.SSHException;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "nmssha";
-
+    boolean checkAgain = true;
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
     }
 
-    TextView cmd_output;
-    Button send_btn;
-    Button connect_btn;
-    Button settings_btn;
-    Button search_btn;
     SSHActivityHelper sshHelper;
 
     @Override
     protected void onStart() {
         super.onStart();
-        Log.i(TAG, "activ onstart");
         sshHelper.onStart();
     }
 
@@ -48,79 +35,61 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
+    void welcomeCheck() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean first_run = prefs.getBoolean("first_run", true);
+        prefs.edit().putBoolean("first_run", false).commit();
+        SSHConf conf = new SSHConf(prefs);
+        Log.i(TAG, "welcome check run");
+        Log.i(TAG, "first_run == " + first_run);
+        if (!first_run && conf.isComplete()) {
+            sshHelper.getSsh().setSSHConf(conf);
+            Intent intent = new Intent(this, SearchActivity.class);
+            startActivity(intent);
+        } else {
+            setContentView(R.layout.activity_main);
+            Button b = findViewById(R.id.welcome_settings_btn);
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
+    }
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        // TODO make a first_run prefs, show welcome layout if not set, otherwise, load conf and jump to SeachActivity
-        // TODO add a settings action in the toolbar
-        cmd_output = findViewById(R.id.cmd_output);
-        send_btn = findViewById(R.id.send_btn);
-        connect_btn = findViewById(R.id.connect_btn);
-        settings_btn = findViewById(R.id.settings_btn);
-        search_btn = findViewById(R.id.search_btn);
-        cmd_output.setText("");
-
-        send_btn.setOnClickListener(new View.OnClickListener() {
-            ShowCmd showCmd = new ShowCmd("thread:000000000000c6f3");
-
+        sshHelper = new SSHActivityHelper(this, new SSHActivityHelper.OnConnectedCallback() {
             @Override
-            public void onClick(View v) {
-
-                sshHelper.addCommand(showCmd.run(sshHelper.getSsh()), new CommandCallback() {
-                            @Override
-                            public void onError(Exception e) {
-                                Log.e(TAG, "error", e);
-                            }
-
-                            @Override
-                            public void onResult(CommandResult r) {
-                                try {
-                                    showCmd.parse(r);
-                                    for (ThreadMessage m : showCmd.getResults()) {
-                                        cmd_output.append(m.toString());
-                                    }
-                                } catch (SSHException e) {
-                                    Log.e(TAG, "error", e);
-                                }
-                            }
-                        }
-                );
+            public void onConnected() {
+                welcomeCheck();
             }
         });
-        connect_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                SSHConf conf = new SSHConf(prefs);
-                if (conf.isComplete()) {
-                    sshHelper.getSsh().setSSHConf(conf);
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.ssh_conf_incomplete, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-        settings_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
-            }
-        });
-        search_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-                startActivity(intent);
-            }
-        });
-        sshHelper = new SSHActivityHelper(this, null);
         sshHelper.onCreate();
+        checkAgain = false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (checkAgain)
+            welcomeCheck();
+        checkAgain = false;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        checkAgain = true;
     }
 
     @Override
     protected void onDestroy() {
         sshHelper.onDestroy();
+        checkAgain = true;
         super.onDestroy();
     }
 

@@ -121,7 +121,6 @@ public class SSHConnectionTest {
 
     public interface onTestDoneListener {
         void onSuccess(CommandResult s);
-
         void onError(Exception e);
     }
 }

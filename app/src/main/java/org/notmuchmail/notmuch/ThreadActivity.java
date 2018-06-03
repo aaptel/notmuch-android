@@ -74,7 +74,9 @@ public class ThreadActivity extends AppCompatActivity {
                     public void onResult(CommandResult r) {
                         try {
                             showCmd.parse(r);
-                            messages.addAll(showCmd.getResults());
+                            List<ThreadMessage> res = showCmd.getResults();
+                            ThreadActivity.this.setTitle(res.get(0).subject);
+                            messages.addAll(res);
                             rv.getAdapter().notifyDataSetChanged();
                         } catch (Exception e) {
                             Toast.makeText(ThreadActivity.this.getApplicationContext(), "Error while parsing notmuch output for " + query + " (" + e.toString() + ")", Toast.LENGTH_LONG).show();

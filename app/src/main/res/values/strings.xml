@@ -66,4 +66,6 @@
     <string name="pref_title_ssh_sendmail_cmd">Sendmail command</string>
     <string name="pref_test_connection">Test connection</string>
     <string name="pref_testing">Testing...</string>
+    <string name="welcome">Welcome to notmuch!\n\nThis is an email client for your phone that uses notmuch. For this it runs notmuch on a remote host via SSH. To setup how the connection is made go to the settings.\n\nOnce configured you won\'t see this message again.</string>
+    <string name="action_settings">Settings</string>
 </resources>

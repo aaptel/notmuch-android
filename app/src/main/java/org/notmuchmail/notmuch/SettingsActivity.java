@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.notmuchmail.notmuch.helpers.AppCompatPreferenceActivity;
 import org.notmuchmail.notmuch.ssh.CommandResult;
@@ -234,6 +235,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             btn.setText(R.string.pref_test_connection);
             v.addView(btn);
             defaultCol = testRes.getCurrentTextColor();
+
+            // dev cheat code to reset first_run flag
+            btn.setOnLongClickListener(new View.OnLongClickListener() {
+                public boolean onLongClick(View v) {
+                    PreferenceManager.getDefaultSharedPreferences(ctx).edit().putBoolean("first_run", true).commit();
+                    Toast.makeText(ctx, "First run flag reset!", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
+
             btn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
