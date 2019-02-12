@@ -80,7 +80,7 @@ public class utils {
             ByteArrayOutputStream privateKeyBuff = new ByteArrayOutputStream(2048);
             ByteArrayOutputStream publicKeyBuff = new ByteArrayOutputStream(2048);
 
-            keyPair.writePublicKey(publicKeyBuff, "notmuch");
+            keyPair.writePublicKey(publicKeyBuff, "notmuch-android");
             keyPair.writePrivateKey(privateKeyBuff);
             priv = privateKeyBuff.toString();
             pub = publicKeyBuff.toString();

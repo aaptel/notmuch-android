@@ -28,6 +28,7 @@ android {
     //}
     packagingOptions {
         exclude 'META-INF/mimetypes.default'
+        exclude 'META-INF/mailcap.default'
     }
 }
 
@@ -42,6 +43,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation 'com.jcraft:jsch:0.1.54'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
-    //implementation 'com.sun.mail:android-mail:1.6.1'
-    //implementation 'com.sun.mail:android-activation:1.6.1'
+    implementation 'com.sun.mail:android-mail:1.6.0'
+    implementation 'com.sun.mail:android-activation:1.6.0'
 }
